@@ -1,20 +1,24 @@
-let gridSize = 16;
+let gridSize;
+let BOXES;
 
+// Grab relevant elements and create others
 let body = document.querySelector("body");
 let container = document.querySelector(".container");
 let queryBtn = document.createElement("button");
-let resetBtn = document.createElement("button")
+let resetBtn = document.createElement("button");
 let header = document.createElement("h1");
 
 header.textContent = "Etch-A-Sketch";
 resetBtn.classList.add("reset");
-queryBtn.textContent = "Click this button to choose the grid size(Max: 100)";
-resetBtn.textContent = "Reset"
+resetBtn.textContent = "Reset";
 
-body.prepend(resetBtn)
+queryBtn.textContent = "Click this button to choose the grid size(Max: 100)";
+queryBtn.disabled = false;
+
+// Add them to beginning of page
+body.prepend(resetBtn);
 body.prepend(queryBtn);
 body.prepend(header);
-
 
 const pastelHexColors = [
   "#FFD1DC", // Pastel Pink
@@ -44,45 +48,67 @@ const pastelHexColors = [
   "#95D5B2", // Soft Teal
 ];
 
-let boxSize = `calc(100% / ${gridSize})`;
+// Margin by which to reduce brightness and minimum brightness
+const brightnessStep = 0.1;
+const minBrightness = 0.2;
 
-const BOXES = gridSize * gridSize;
+// Main drawing function
+function createGrid(size) {
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+  gridSize = size;
+  BOXES = gridSize * gridSize;
 
+  let boxSize = `calc(100% / ${gridSize})`;
 
-const brightnessStep = 0.1
-const minBrightness = 0.2
+  for (let i = 0; i < BOXES; i++) {
+    let box = document.createElement("div");
+    box.classList.add("sketch-box");
+    box.style.flex = `0 0 ${boxSize}`;
+    box.style.height = boxSize;
+    container.appendChild(box);
 
+    let currentBrightness = 1;
+
+    box.addEventListener("mouseenter", () => {
+      box.style.backgroundColor =
+        pastelHexColors[Math.floor(Math.random() * pastelHexColors.length)];
+      box.style.filter = `brightness(${currentBrightness})`;
+      currentBrightness = Math.max(
+        minBrightness,
+        currentBrightness - brightnessStep
+      );
+    });
+  }
+}
+
+// To get user grid size
 queryBtn.addEventListener("click", () => {
   let askUser = prompt("Grid Size? ");
   gridSize = Number(askUser);
 
-  if (gridSize > 100) {
-    alert("That number is too large!");
+  if (gridSize > 100 || isNaN(gridSize) || gridSize < 1) {
+    alert("Please enter a number between 1 and 100");
     return;
   }
+
+  createGrid(gridSize)
+
+  queryBtn.disabled = true
+  
 });
 
-for (let i = 0; i < BOXES; i++) {
-  let box = document.createElement("div");
-  box.classList.add("sketch-box");
-  box.style.flex = `0 0 ${boxSize}`;
-  box.style.height = boxSize;
-  container.appendChild(box);
-  let currentBrightness = 1;
-  box.addEventListener("mouseenter", () => {
-    box.style.backgroundColor =
-      pastelHexColors[Math.floor(Math.random() * pastelHexColors.length)];
-    box.style.filter = `brightness(${currentBrightness})`
-    currentBrightness = Math.max(minBrightness, currentBrightness - brightnessStep)
-  });
+// for clearing the sketch after drawing
+function clearBoard() {
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+  queryBtn.disabled = false;
 }
 
-resetBtn.addEventListener('click', ()=>{
-    let btn = document.querySelectorAll('.sketch-box')
-    let btnArray = Array.from(btn)
+resetBtn.addEventListener("click", clearBoard);
 
-    btnArray.forEach(btn => {
-        btn.style.backgroundColor = '#FFDAC1'
-        btn.style.filter = `brightness(1)`
-    })
+document.addEventListener('DOMContentLoaded', ()=>{
+    createGrid(16)
 })
