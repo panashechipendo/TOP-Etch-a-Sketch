@@ -7,16 +7,20 @@ let container = document.querySelector(".container");
 let queryBtn = document.createElement("button");
 let resetBtn = document.createElement("button");
 let header = document.createElement("h1");
+let colorBtn = document.createElement("button")
 
 header.textContent = "Etch-A-Sketch";
+colorBtn.textContent = "Toggle colors"
 resetBtn.classList.add("reset");
 resetBtn.textContent = "Reset";
 
 queryBtn.textContent = "Click this button to choose the grid size(Max: 100)";
 queryBtn.disabled = false;
+colorBtn.disabled = false;
 
 // Add them to beginning of page
 body.prepend(resetBtn);
+body.prepend(colorBtn)
 body.prepend(queryBtn);
 body.prepend(header);
 
@@ -48,6 +52,8 @@ const pastelHexColors = [
   "#95D5B2", // Soft Teal
 ];
 
+const mainColor = "#f8fffbff"
+
 // Margin by which to reduce brightness and minimum brightness
 const brightnessStep = 0.1;
 const minBrightness = 0.2;
@@ -72,8 +78,12 @@ function createGrid(size) {
     let currentBrightness = 1;
 
     box.addEventListener("mouseenter", () => {
-      box.style.backgroundColor =
+      if (colorBtn.className == "colors"){
+        box.style.backgroundColor =
         pastelHexColors[Math.floor(Math.random() * pastelHexColors.length)];
+      }else{
+        box.style.backgroundColor = mainColor
+      }
       box.style.filter = `brightness(${currentBrightness})`;
       currentBrightness = Math.max(
         minBrightness,
@@ -106,6 +116,13 @@ function clearBoard() {
   }
   queryBtn.disabled = false;
 }
+
+function classChange(){
+  colorBtn.classList.toggle("colors")
+}
+
+
+colorBtn.addEventListener("click", classChange)
 
 resetBtn.addEventListener("click", clearBoard);
 
